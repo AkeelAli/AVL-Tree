@@ -25,15 +25,47 @@ typedef struct Node {
 } Node;
 
 /*
+ Recursive function to find a node holding given data
+ @parameter p_Node_root: root at which to start search
+ @parameter p_data: pointer to data looked for
+ @parameter comp: function pointer that performs comparison
+ @return Node pointer that has the given data, or null if not found
+*/
+Node *
+find(Node *p_Node_root, void * p_data, int (*comp)(void *, void *)) {
+	if(p_Node_root) {
+		int i_comparison = comp(p_Node_root->p_data, p_data);
+		if (i_comparison > 0)
+			return find(p_Node_root->p_Node_left, p_data, comp);
+		if (i_comparison < 0)
+			return find(p_Node_root->p_Node_right, p_data, comp);
+	}
+	
+	return p_Node_root;	
+}
+
+/*
+
+*/
+void *
+find_min(Node *p_Node_root, int (*comp)(void *, void *)) {
+	if (!p_Node_root)
+		return NULL;
+	if (p_Node_root->p_Node_left)
+		return find_min(p_Node_root->p_Node_left, comp);
+	else
+		return p_Node_root->p_data;
+}
+
+/*
  If p_NodeRoot is null, then create tree
- @param p_Node_root: pointer to the root node of tree (or null pointer if new tree)
+ @param p_Node_root: double pointer to the root node of tree (or null pointer if new tree)
  @param p_data: pointer to data to be inserted
  @param p_f_comp: pointer to comparator function (returns +ve if 1st arg greater than 2nd)
  @return pointer to root node of modified tree
 */
 void 
-insert(Node **p_Node_root, void * p_data, 
-		int (*p_f_comp)(void * p_data_1, void * p_data_2)) {
+insert(Node **p_Node_root, void * p_data, int (*p_f_comp)(void *, void *)) {
 	
 	if (!(*p_Node_root)) {
 		(*p_Node_root) = (Node *) malloc(sizeof(Node));
@@ -51,7 +83,67 @@ insert(Node **p_Node_root, void * p_data,
 	}
 }
 
-int
+/*
+
+*/
+void
+delete(Node **p_Node_root, void * p_data, int (*p_f_comp)(void *, void *)) {
+	Node * p_Node_delete = *p_Node_root;
+	Node * p_Node_parent = NULL;	/* root node considered to have null parent */ 
+	enum {
+		right,
+		left,
+	} direction;
+	
+	int i_comparison;
+	int found = F;
+	while(p_Node_delete && !found) {
+		i_comparison = p_f_comp(p_Node_delete->p_data, p_data);
+		if (i_comparison == 0)
+			found = T;
+		else {
+			p_Node_parent = p_Node_delete;
+			if (i_comparison > 0) {
+				p_Node_delete = p_Node_delete->p_Node_left;
+				direction = left;
+			}
+			else {
+				p_Node_delete = p_Node_delete->p_Node_right;
+				direction = right;
+			}
+		}
+	}
+	
+	if (found) {
+		if (!p_Node_parent) {
+			/* delete the only node (root node) */
+			*p_Node_root = NULL;
+		}
+		else if (p_Node_delete->p_Node_left && p_Node_delete->p_Node_right) {
+			/* node has 2 children */
+			p_Node_delete->p_data = find_min(p_Node_delete->p_Node_right, p_f_comp);
+			delete(&(p_Node_delete->p_Node_right), p_Node_delete->p_data, p_f_comp);
+		}
+		else if (p_Node_delete->p_Node_left || p_Node_delete->p_Node_right) {
+			/* node has 1 child */
+			if (direction == right)
+				p_Node_parent->p_Node_right = p_Node_delete->p_Node_right ? 
+					p_Node_delete->p_Node_right: p_Node_delete->p_Node_left;
+			else
+				p_Node_parent->p_Node_left = p_Node_delete->p_Node_right ? 
+					p_Node_delete->p_Node_right: p_Node_delete->p_Node_left;			
+		}
+		else {
+			/* node has no children */
+			if (direction == right)
+				p_Node_parent->p_Node_right = NULL;
+			else
+				p_Node_parent->p_Node_left = NULL;
+		}
+	}
+}
+
+static int
 recursive_height(Node * p_Node_root, int i_height) {
 	if (!p_Node_root)
 		return i_height - 1;
@@ -146,7 +238,14 @@ int main(void) {
 	while (--size >= 0)
 		insert(&p_Node_root, (void *) &i_a_data[size], &int_comparator);
 	
+	
 	print_tree(p_Node_root, 0, &int_print);
+	
+	delete(&p_Node_root, &i_a_data[13], &int_comparator);
+	
+	print_tree(p_Node_root, 0, &int_print);
+	
+	//printf("%d",*(int *)find(p_Node_root, &i_a_data[4], &int_comparator)->p_data);
 
 	return 0;
 }
