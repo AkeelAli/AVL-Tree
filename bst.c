@@ -45,7 +45,7 @@ find(Node *p_Node_root, void * p_data, int (*comp)(void *, void *)) {
 }
 
 /*
-
+ Returns a void pointer to minimum data in tree
 */
 void *
 find_min(Node *p_Node_root, int (*comp)(void *, void *)) {
@@ -53,6 +53,19 @@ find_min(Node *p_Node_root, int (*comp)(void *, void *)) {
 		return NULL;
 	if (p_Node_root->p_Node_left)
 		return find_min(p_Node_root->p_Node_left, comp);
+	else
+		return p_Node_root->p_data;
+}
+
+/*
+ Returns a void pointer to maximum data in tree
+*/
+void *
+find_max(Node *p_Node_root, int (*comp)(void *, void *)) {
+	if (!p_Node_root)
+		return NULL;
+	if (p_Node_root->p_Node_right)
+		return find_max(p_Node_root->p_Node_right, comp);
 	else
 		return p_Node_root->p_data;
 }
@@ -84,7 +97,10 @@ insert(Node **p_Node_root, void * p_data, int (*p_f_comp)(void *, void *)) {
 }
 
 /*
-
+ Deletes the node containing given data in a tree
+ @parameter p_Node_root: double pointer to root of tree
+ @parameter p_data: pointer to data to be deleted from tree
+ @parameter p_f_comp: function pointer comparing tree data elements
 */
 void
 delete(Node **p_Node_root, void * p_data, int (*p_f_comp)(void *, void *)) {
