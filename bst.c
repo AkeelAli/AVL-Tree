@@ -13,16 +13,7 @@
 #include <stdio.h>
 #include <stdint.h>
 
-#define F 0
-#define T 1
-#define MAXHEIGHT 100
-#define MAX(x,y) ((x) > (y) ? (x):(y))
-
-typedef struct Node {
-	struct Node * p_Node_left;
-	struct Node * p_Node_right;
-	void * p_data;
-} Node;
+#include "bst.h"
 
 /*
  Recursive function to find a node holding given data
@@ -72,39 +63,39 @@ find_max(Node *p_Node_root, int (*comp)(void *, void *)) {
 
 /*
  If p_NodeRoot is null, then create tree
- @param p_Node_root: double pointer to the root node of tree (or null pointer if new tree)
+ @param pp_Node_root: double pointer to the root node of tree (or null pointer if new tree)
  @param p_data: pointer to data to be inserted
  @param p_f_comp: pointer to comparator function (returns +ve if 1st arg greater than 2nd)
  @return pointer to root node of modified tree
 */
 void 
-insert(Node **p_Node_root, void * p_data, int (*p_f_comp)(void *, void *)) {
+insert(Node **pp_Node_root, void * p_data, int (*p_f_comp)(void *, void *)) {
 	
-	if (!(*p_Node_root)) {
-		(*p_Node_root) = (Node *) malloc(sizeof(Node));
-		(*p_Node_root)->p_data = p_data;
-		(*p_Node_root)->p_Node_left = NULL;
-		(*p_Node_root)->p_Node_right = NULL;
+	if (!(*pp_Node_root)) {
+		(*pp_Node_root) = (Node *) malloc(sizeof(Node));
+		(*pp_Node_root)->p_data = p_data;
+		(*pp_Node_root)->p_Node_left = NULL;
+		(*pp_Node_root)->p_Node_right = NULL;
 	}
 	else {
-		int i_comparison = p_f_comp((*p_Node_root)->p_data, p_data);
+		int i_comparison = p_f_comp((*pp_Node_root)->p_data, p_data);
 		
 		if (i_comparison < 0)
-			insert(&((*p_Node_root)->p_Node_right), p_data, p_f_comp);
+			insert(&((*pp_Node_root)->p_Node_right), p_data, p_f_comp);
 		else if (i_comparison > 0)
-			insert(&((*p_Node_root)->p_Node_left), p_data, p_f_comp);
+			insert(&((*pp_Node_root)->p_Node_left), p_data, p_f_comp);
 	}
 }
 
 /*
  Deletes the node containing given data in a tree
- @parameter p_Node_root: double pointer to root of tree
+ @parameter pp_Node_root: double pointer to root of tree
  @parameter p_data: pointer to data to be deleted from tree
  @parameter p_f_comp: function pointer comparing tree data elements
 */
 void
-delete(Node **p_Node_root, void * p_data, int (*p_f_comp)(void *, void *)) {
-	Node * p_Node_delete = *p_Node_root;
+delete(Node **pp_Node_root, void * p_data, int (*p_f_comp)(void *, void *)) {
+	Node * p_Node_delete = *pp_Node_root;
 	Node * p_Node_parent = NULL;	/* root node considered to have null parent */ 
 	enum {
 		right,
@@ -133,7 +124,7 @@ delete(Node **p_Node_root, void * p_data, int (*p_f_comp)(void *, void *)) {
 	if (found) {
 		if (!p_Node_parent) {
 			/* delete the only node (root node) */
-			*p_Node_root = NULL;
+			*pp_Node_root = NULL;
 		}
 		else if (p_Node_delete->p_Node_left && p_Node_delete->p_Node_right) {
 			/* node has 2 children */
@@ -168,6 +159,10 @@ recursive_height(Node * p_Node_root, int i_height) {
 		recursive_height(p_Node_root->p_Node_right, i_height + 1));
 }
 
+/*
+ Returns the height of the passed node in its tree
+ (-1 if null tree, and 0 if only 1 node)
+*/
 int
 get_height(Node * p_Node_root) {
 	return recursive_height(p_Node_root, 0);
@@ -226,42 +221,4 @@ print_tree(Node * p_Node_root, int i_level, void formatted_print(void *p_data)) 
 		free(p_c_right);
 		p_c_right = NULL;
 	}
-}
-
-
-/* Code below for integer BST tree */
-
-void
-int_print(void *p_data) {
-	printf("(%d)",*(int *)p_data);
-}
-
-int 
-int_comparator(void *p_v1, void *p_v2) {
-	int v1 = * (int *)p_v1;
-	int v2 = * (int *)p_v2;
-	if (v1 > v2) return 1;
-	if (v1 < v2) return -1;
-	return 0;
-}
-
-int main(void) {
-	int i_a_data[] = {1, 4, 10, 2, -3, -1, 10, 23, 200, 12, 32, 438, 538, 93, 439, -4, 3, 0, 10000, 2023023 };
-	//int i_a_data[] = {9, 7, 8, 5, 4, 6, 1, 2, 3};
-	Node * p_Node_root = NULL;
-	
-	int size = sizeof(i_a_data)/sizeof(int);
-	while (--size >= 0)
-		insert(&p_Node_root, (void *) &i_a_data[size], &int_comparator);
-	
-	
-	print_tree(p_Node_root, 0, &int_print);
-	
-	delete(&p_Node_root, &i_a_data[13], &int_comparator);
-	
-	print_tree(p_Node_root, 0, &int_print);
-	
-	//printf("%d",*(int *)find(p_Node_root, &i_a_data[4], &int_comparator)->p_data);
-
-	return 0;
 }
