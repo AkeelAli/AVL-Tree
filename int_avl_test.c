@@ -5,33 +5,33 @@
 #include <stdlib.h>
 
 void
-int_print(void *p_key) {
-	printf("(%d)",*(int *)p_key);
+int_print(Node *p_Node) {
+	printf("(%d:%d)",*(int *)(p_Node->p_key),*(int *)(p_Node->p_data));
 }
 
 int 
-int_comparator(void *p_v1, void *p_v2) {
-	int v1 = * (int *)p_v1;
-	int v2 = * (int *)p_v2;
-	if (v1 > v2) return 1;
-	if (v1 < v2) return -1;
+int_comparator(void *p_k1, void *p_k2) {
+	int k1 = * (int *)p_k1;
+	int k2 = * (int *)p_k2;
+	if (k1 > k2) return 1;
+	if (k1 < k2) return -1;
 	return 0;
 }
 
 int main(void) {
-	int i_a_data[] = {1, 4, 10, 2, -3, -1, 10, 23, 200, 12, 32, 438, 538, 93, 439, -4, 3, 0, 10000, 2023023 };
-	//int i_a_data[] = {9, 7, 8, 5, 4, 6, 1, 2, 3};
+	int i_a_data[][2] = { {9, 3}, {7, 2}, {8, 9}, {5, 2}, {4, 10}, {6, 23}, {1, 39}, {2, -3}, {-3, 23}};
 	Node * p_Node_root = NULL;
 	
-	int size = sizeof(i_a_data)/sizeof(int);
+	int size = sizeof(i_a_data)/sizeof(i_a_data[0]);
 	while (--size >= 0)
-		insert_avl(&p_Node_root, (void *) &i_a_data[size], &int_comparator);
+		insert_avl(&p_Node_root, (void *) &i_a_data[size][0], (void *) &i_a_data[size][1], &int_comparator);
 	
 	
 	print_tree(p_Node_root, 0, &int_print);
-	
-	delete_avl(&p_Node_root, &i_a_data[1], &int_comparator);
-	delete_avl(&p_Node_root, &i_a_data[2], &int_comparator);
+		
+	delete_avl(&p_Node_root, &i_a_data[4][0], &int_comparator);
+	delete_avl(&p_Node_root, &i_a_data[2][0], &int_comparator);
+	delete_avl(&p_Node_root, &i_a_data[6][0], &int_comparator);
 	
 	print_tree(p_Node_root, 0, &int_print);
 	

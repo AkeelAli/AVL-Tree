@@ -7,7 +7,7 @@
 
 #ifdef DEBUG
 	void
-	int_print(void *p_key);
+	int_print(Node *p_Node);
 #endif 
 
 int
@@ -50,7 +50,8 @@ update_rotate_pointers(Node *p_Node_root, Node *p_Node_parent, Node *a_p_Node_ro
 		a_p_Node_rotate[2] = p_Node_root->RIGHT;
 		unbalance_factor = get_unbalance_factor (p_Node_root->RIGHT);
 		
-		if (unbalance_factor > 1) {
+		/* the = is important as you need to go in the heaviest direction */
+		if (unbalance_factor >= 1) {
 			a_p_Node_rotate[3] = p_Node_root->RIGHT->RIGHT;
 			unbalance_direction = RR;
 		}
@@ -63,7 +64,7 @@ update_rotate_pointers(Node *p_Node_root, Node *p_Node_parent, Node *a_p_Node_ro
 		a_p_Node_rotate[2] = p_Node_root->LEFT;
 		unbalance_factor = get_unbalance_factor (p_Node_root->LEFT);
 		
-		if (unbalance_factor > 1) {
+		if (unbalance_factor >= 1) {
 			a_p_Node_rotate[3] = p_Node_root->LEFT->RIGHT;
 			unbalance_direction = LR;
 		}
@@ -125,6 +126,7 @@ balance_avl_limited(Node **pp_Node_root, void *p_key, int (*p_f_comp)(void *, vo
 			printf("\tC = %d\n", C ? *(int *)C->p_key:-20000);
 		#endif 
 		
+		/* Source: http://www.cse.ohio-state.edu/~sgomori/570/avlrotations.html */
 		switch (unbalance_direction) {
 			case RL :
 				B->LEFT = C->RIGHT;
@@ -168,12 +170,12 @@ balance_avl_limited(Node **pp_Node_root, void *p_key, int (*p_f_comp)(void *, vo
 }
 
 void
-insert_avl(Node **pp_Node_root, void *p_key, int (*p_f_comp)(void *, void *)) {
+insert_avl(Node **pp_Node_root, void *p_key, void *p_data, int (*p_f_comp)(void *, void *)) {
 	#ifdef DEBUG
 		printf("inserting %d\n", *(int *)p_key);
 	#endif 
 	
-	insert(pp_Node_root, p_key, p_f_comp);
+	insert(pp_Node_root, p_key, p_data, p_f_comp);
 	balance_avl_limited(pp_Node_root, p_key, p_f_comp);
 	
 	#ifdef DEBUG
