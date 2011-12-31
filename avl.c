@@ -7,7 +7,7 @@
 
 #ifdef DEBUG
 	void
-	int_print(void *p_data);
+	int_print(void *p_key);
 #endif 
 
 int
@@ -76,23 +76,23 @@ update_rotate_pointers(Node *p_Node_root, Node *p_Node_parent, Node *a_p_Node_ro
 	
 }
 
-/* Only balances ancestors of recently added/removed element (specified in p_data)*/
+/* Only balances ancestors of recently added/removed element (specified in p_key)*/
 static void
-balance_avl_limited(Node **pp_Node_root, void *p_data, int (*p_f_comp)(void *, void *)) {
+balance_avl_limited(Node **pp_Node_root, void *p_key, int (*p_f_comp)(void *, void *)) {
 	/* rotate pointers used in the balancing algorithm */
 	/* A is the unbalanced node */
 	Node *a_p_Node_rotate[4] = {NULL, NULL, NULL, NULL}; /* Parent, A, B, C */
 	
-	/* pointers to sweep over ancestors of p_data in the tree */
+	/* pointers to sweep over ancestors of p_key in the tree */
 	Node *p_Node_sweeper = *pp_Node_root;
 	Node *p_Node_parent_sweeper = NULL;
 	
 	int i_comparison;
 	
-	/* sweep the ancestors of the p_data element and save the deepest unbalanced node */
-	while (p_Node_sweeper && p_Node_sweeper->p_data != p_data) {
+	/* sweep the ancestors of the p_key element and save the deepest unbalanced node */
+	while (p_Node_sweeper && p_Node_sweeper->p_key != p_key) {
 		#ifdef DEBUG
-			//printf("\tcurrently checking %d unbalanced?\n",*(int *)p_Node_sweeper->p_data);
+			//printf("\tcurrently checking %d unbalanced?\n",*(int *)p_Node_sweeper->p_key);
 		#endif
 		/* if the node is unbalanced, update P, A, B, C pointers */
 		if (is_unbalanced(p_Node_sweeper)) 
@@ -101,7 +101,7 @@ balance_avl_limited(Node **pp_Node_root, void *p_data, int (*p_f_comp)(void *, v
 		/* update sweeper and parent_sweeper for next node to examine */
 		p_Node_parent_sweeper = p_Node_sweeper; /* update parent */
 		
-		i_comparison = p_f_comp(p_Node_sweeper->p_data, p_data);
+		i_comparison = p_f_comp(p_Node_sweeper->p_key, p_key);
 		
 		if (i_comparison > 0) 
 			p_Node_sweeper = p_Node_sweeper->LEFT;
@@ -119,10 +119,10 @@ balance_avl_limited(Node **pp_Node_root, void *p_data, int (*p_f_comp)(void *, v
 		
 		#ifdef DEBUG
 			printf("balancing tree\n");
-			printf("\tP = %d\n", P ? *(int *)P->p_data:-20000);
-			printf("\tA = %d\n", A ? *(int *)A->p_data:-20000);
-			printf("\tB = %d\n", B ? *(int *)B->p_data:-20000);
-			printf("\tC = %d\n", C ? *(int *)C->p_data:-20000);
+			printf("\tP = %d\n", P ? *(int *)P->p_key:-20000);
+			printf("\tA = %d\n", A ? *(int *)A->p_key:-20000);
+			printf("\tB = %d\n", B ? *(int *)B->p_key:-20000);
+			printf("\tC = %d\n", C ? *(int *)C->p_key:-20000);
 		#endif 
 		
 		switch (unbalance_direction) {
@@ -168,13 +168,13 @@ balance_avl_limited(Node **pp_Node_root, void *p_data, int (*p_f_comp)(void *, v
 }
 
 void
-insert_avl(Node **pp_Node_root, void *p_data, int (*p_f_comp)(void *, void *)) {
+insert_avl(Node **pp_Node_root, void *p_key, int (*p_f_comp)(void *, void *)) {
 	#ifdef DEBUG
-		printf("inserting %d\n", *(int *)p_data);
+		printf("inserting %d\n", *(int *)p_key);
 	#endif 
 	
-	insert(pp_Node_root, p_data, p_f_comp);
-	balance_avl_limited(pp_Node_root, p_data, p_f_comp);
+	insert(pp_Node_root, p_key, p_f_comp);
+	balance_avl_limited(pp_Node_root, p_key, p_f_comp);
 	
 	#ifdef DEBUG
 		printf("after insertion\n");
@@ -184,16 +184,16 @@ insert_avl(Node **pp_Node_root, void *p_data, int (*p_f_comp)(void *, void *)) {
 }
 
 void
-delete_avl(Node **pp_Node_root, void *p_data, int (*p_f_comp)(void *, void *)) {
+delete_avl(Node **pp_Node_root, void *p_key, int (*p_f_comp)(void *, void *)) {
 	#ifdef DEBUG
-		printf("inserting %d\n", *(int *)p_data);
+		printf("deleting %d\n", *(int *)p_key);
 	#endif 
 	
-	delete(pp_Node_root, p_data, p_f_comp);
-	balance_avl_limited(pp_Node_root, p_data, p_f_comp);
+	delete(pp_Node_root, p_key, p_f_comp);
+	balance_avl_limited(pp_Node_root, p_key, p_f_comp);
 	
 	#ifdef DEBUG
-		printf("after insertion\n");
+		printf("after deletion\n");
 		print_tree(*pp_Node_root, 0, &int_print);
 		printf("\n");
 	#endif

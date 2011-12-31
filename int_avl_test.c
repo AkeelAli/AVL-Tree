@@ -5,8 +5,8 @@
 #include <stdlib.h>
 
 void
-int_print(void *p_data) {
-	printf("(%d)",*(int *)p_data);
+int_print(void *p_key) {
+	printf("(%d)",*(int *)p_key);
 }
 
 int 
@@ -35,7 +35,7 @@ int main(void) {
 	
 	print_tree(p_Node_root, 0, &int_print);
 	
-	//printf("%d",*(int *)find(p_Node_root, &i_a_data[4], &int_comparator)->p_data);
+	//printf("%d",*(int *)find(p_Node_root, &i_a_data[4], &int_comparator)->p_key);
 
 	return 0;
 }
